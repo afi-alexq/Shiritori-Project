@@ -1,5 +1,24 @@
-fn main() {
-    println!("Hello, world!");
+use std::io;
+
+fn main() -> io::Result<()> {
+    let stdin = io::stdin();
+
+    println!("This is essentially echo.");
+
+    let mut buffer = String::new();
+
+    while buffer != "q" {
+        println!("input: ");
+
+        buffer = String::new();
+        stdin.read_line(&mut buffer)?;
+
+        buffer = buffer.trim().into();
+
+        println!("{buffer:?}");
+    }
+
+    Ok(())
 }
 
 pub fn isvalid(opword: &str, uword: &str) -> bool {
@@ -9,10 +28,8 @@ pub fn isvalid(opword: &str, uword: &str) -> bool {
     if opword.contains(char::is_numeric) {
         return false;
     }
-    
-    opword.ends_with(|c: char| {
-        c == uword.chars().next().unwrap()
-    })
+
+    opword.ends_with(|c: char| c == uword.chars().next().unwrap())
 }
 
 #[cfg(test)]
@@ -47,5 +64,15 @@ mod tests {
     fn first_letter() {
         assert!(isvalid("op", "pl"));
         assert!(!isvalid("pl", "op"));
+    }
+
+    #[test]
+    fn inputs() {
+        let mut userword = String::new();
+
+        println!("Input Word");
+        println!("your word is: {}", userword);
+
+        io::stdin().read_line(&mut userword);
     }
 }
