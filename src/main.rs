@@ -29,6 +29,22 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
+pub fn valid_return(wordlist: &Vec<&str>, usr_input: String) -> Vec<String> {
+    if let Some(last_letter) = usr_input.chars().last() {
+        wordlist
+            .iter()
+            .filter(|&&word| {
+                word.chars()
+                    .next()
+                    .is_some_and(|first_letter| first_letter == last_letter)
+            })
+            .map(|s| s.to_string())
+            .collect()
+    } else {
+        vec![]
+    }
+}
+
 pub fn isvalid(opword: &str, uword: &str) -> bool {
     if opword.is_empty() || uword.is_empty() {
         return false;
@@ -42,8 +58,42 @@ pub fn isvalid(opword: &str, uword: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
+
+    const DEMO_COM_WORDS: [&'static str; 6] =
+        ["apple", "banana", "cherry", "date", "eggplant", "bacon"];
+
+    #[test]
+    fn return_empty_when_no_valid_word() {
+        let wordlist = Vec::from(DEMO_COM_WORDS);
+
+        let result: Vec<&str> = vec![];
+        assert_eq!(valid_return(&wordlist, String::from("zulu")), result);
+
+        let result = vec!["eggplant".to_string()];
+        assert_eq!(valid_return(&wordlist, String::from("fate")), result);
+    }
+
+    #[test]
+    fn return_valid_word_responses() {
+        let wordlist = Vec::from(DEMO_COM_WORDS);
+        assert_eq!(
+            valid_return(&wordlist, "glob".to_string()),
+            vec!["banana".to_string(), "bacon".to_string()]
+        );
+        assert_eq!(
+            valid_return(&wordlist, "dad".to_string()),
+            vec!["date".to_string()]
+        );
+    }
+
+    #[test]
+    #[ignore = "cuz"]
+    fn multiple_matches() {
+        let _wordlist = Vec::from(DEMO_COM_WORDS);
+        todo!()
+    }
+
     #[test]
     fn words_cant_be_blank() {
         let r = !isvalid("", "");
