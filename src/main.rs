@@ -1,6 +1,16 @@
-use std::io;
+use std::{fs, io};
 
 fn main() -> io::Result<()> {
+    let contents = fs::read_to_string("./1000-most-common-words.txt")?;
+
+    let mut words: Vec<_> = contents.lines().map(|line| line.trim()).collect();
+
+    words.sort();
+
+    for word in words {
+        println!("{word}");
+    }
+
     let stdin = io::stdin();
 
     println!("This is essentially echo.");
@@ -12,9 +22,7 @@ fn main() -> io::Result<()> {
 
         buffer = String::new();
         stdin.read_line(&mut buffer)?;
-
         buffer = buffer.trim().into();
-
         println!("{buffer:?}");
     }
 
@@ -34,6 +42,7 @@ pub fn isvalid(opword: &str, uword: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
     #[test]
     fn words_cant_be_blank() {
@@ -64,15 +73,5 @@ mod tests {
     fn first_letter() {
         assert!(isvalid("op", "pl"));
         assert!(!isvalid("pl", "op"));
-    }
-
-    #[test]
-    fn inputs() {
-        let mut userword = String::new();
-
-        println!("Input Word");
-        println!("your word is: {}", userword);
-
-        io::stdin().read_line(&mut userword);
     }
 }
