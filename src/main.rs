@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::{fs, io};
 
 fn main() -> io::Result<()> {
@@ -17,32 +18,43 @@ fn main() -> io::Result<()> {
 
     let mut buffer = String::new();
 
+    let mut unique_words = HashSet::new();
+
+    let mut previous_word = "".to_string();
+
     while buffer != "q" {
         println!("input: ");
 
         buffer = String::new();
         stdin.read_line(&mut buffer)?;
         buffer = buffer.trim().into();
-        println!("{buffer:?}");
+        println!("{previous_word} :: {buffer}");
+
+        let was_new_word = unique_words.insert(buffer.clone());
+        let is_valid:bool = isvalid(&previous_word, &buffer);
+
+        if !was_new_word {
+            println!("YOU LOSE. WORD REPEATED.");
+            return Ok(());
+        } else if !previous_word.is_empty() && !is_valid {
+            println!("YOU LOSE. WORD NOT VALID.");
+            return Ok(());
+        } else {
+            // can play
+        }
+
+        previous_word = buffer.clone();
     }
 
     Ok(())
 }
 
 pub fn valid_return(wordlist: &Vec<&str>, usr_input: String) -> Vec<String> {
-    if let Some(last_letter) = usr_input.chars().last() {
-        wordlist
-            .iter()
-            .filter(|&&word| {
-                word.chars()
-                    .next()
-                    .is_some_and(|first_letter| first_letter == last_letter)
-            })
-            .map(|s| s.to_string())
-            .collect()
-    } else {
-        vec![]
-    }
+    wordlist
+        .iter()
+        .filter(|&&word| isvalid(&usr_input, word))
+        .map(|s| s.to_string())
+        .collect()
 }
 
 pub fn isvalid(opword: &str, uword: &str) -> bool {
