@@ -8,7 +8,7 @@ fn main() -> io::Result<()> {
 
     words.sort();
 
-    for word in words {
+    for word in words.clone() {
         println!("{word}");
     }
 
@@ -30,8 +30,8 @@ fn main() -> io::Result<()> {
         buffer = buffer.trim().into();
         println!("{previous_word} :: {buffer}");
 
-        let was_new_word = unique_words.insert(buffer.clone());
-        let is_valid:bool = isvalid(&previous_word, &buffer);
+        let was_new_word: bool = unique_words.insert(buffer.clone());
+        let is_valid: bool = isvalid(&previous_word, &buffer);
 
         if !was_new_word {
             println!("YOU LOSE. WORD REPEATED.");
@@ -44,12 +44,26 @@ fn main() -> io::Result<()> {
         }
 
         previous_word = buffer.clone();
-    }
 
+        let computer_options = valid_return(&words, &previous_word);
+        let op_word = computer_options.first();
+
+        match op_word {
+            Some(op_word) => {
+                println!("{op_word}");
+                unique_words.insert(op_word.clone());
+                previous_word = op_word.clone();
+            }
+            None => {
+                println!("YOU WIN!");
+                return Ok(());
+            }
+        }
+    }
     Ok(())
 }
 
-pub fn valid_return(wordlist: &Vec<&str>, usr_input: String) -> Vec<String> {
+pub fn valid_return(wordlist: &Vec<&str>, usr_input: &String) -> Vec<String> {
     wordlist
         .iter()
         .filter(|&&word| isvalid(&usr_input, word))
@@ -80,21 +94,21 @@ mod tests {
         let wordlist = Vec::from(DEMO_COM_WORDS);
 
         let result: Vec<&str> = vec![];
-        assert_eq!(valid_return(&wordlist, String::from("zulu")), result);
+        assert_eq!(valid_return(&wordlist, &String::from("zulu")), result);
 
         let result = vec!["eggplant".to_string()];
-        assert_eq!(valid_return(&wordlist, String::from("fate")), result);
+        assert_eq!(valid_return(&wordlist, &String::from("fate")), result);
     }
 
     #[test]
     fn return_valid_word_responses() {
         let wordlist = Vec::from(DEMO_COM_WORDS);
         assert_eq!(
-            valid_return(&wordlist, "glob".to_string()),
+            valid_return(&wordlist, &"glob".to_string()),
             vec!["banana".to_string(), "bacon".to_string()]
         );
         assert_eq!(
-            valid_return(&wordlist, "dad".to_string()),
+            valid_return(&wordlist, &"dad".to_string()),
             vec!["date".to_string()]
         );
     }
